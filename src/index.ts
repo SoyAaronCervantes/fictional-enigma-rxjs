@@ -14,15 +14,18 @@ const intervalo$ = new Observable<number>( subscriber => {
         subscriber.next( count++ );
         console.log( count );
     }, 1000);
+
+    setTimeout( () => subscriber.complete(), 2500 );
     return () => {
         clearInterval( interval );
         console.log( 'Intervalo limpiado' );
     }
+
 });
 
-const subs1 = intervalo$.subscribe();
-const subs2= intervalo$.subscribe();
-const subs3 = intervalo$.subscribe();
+const subs1 = intervalo$.subscribe(observer);
+const subs2= intervalo$.subscribe(observer);
+const subs3 = intervalo$.subscribe(observer);
 
 setTimeout( () => {
 
@@ -32,4 +35,4 @@ setTimeout( () => {
 
     console.log( 'Completado timeout' );
 
-    }, 3000 );
+    }, 6000 );
