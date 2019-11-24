@@ -8,8 +8,11 @@ const observer: Observer<any> = {
 
 const interval$ = new Observable<number>( subscriber => {
 
-    const interval = setInterval( () => subscriber.next( Math.random() ), 5000);
-    return () => clearInterval( interval );
+    const interval = setInterval( () => subscriber.next( Math.random() ), 1000);
+    return () => {
+        clearInterval( interval );
+        console.log( 'Intervalo destruido' );
+    };
 
 });
 /**
@@ -21,10 +24,21 @@ const interval$ = new Observable<number>( subscriber => {
  */
 const subject$ = new Subject();
 
-interval$.subscribe( subject$ );
+const intervalSubject = interval$.subscribe( subject$ );
 
 // const sub1 = interval$.subscribe( res => console.log('Subs 1:', res) );
 // const sub2 = interval$.subscribe( res => console.log('Subs 2:', res) );
 
-const sub1 = subject$.subscribe( res => console.log('Subs 1:', res) );
-const sub2 = subject$.subscribe( res => console.log('Subs 2:', res) );
+const sub1 = subject$.subscribe( observer );
+const sub2 = subject$.subscribe( observer );
+
+
+setTimeout( () => {
+
+    subject$.next( 10 );
+
+    subject$.complete();
+
+    intervalSubject.unsubscribe();
+
+}, 3500 );
