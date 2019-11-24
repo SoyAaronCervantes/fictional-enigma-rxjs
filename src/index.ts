@@ -5,3 +5,13 @@ const observer: Observer<any> = {
     error: err => console.error( 'Error', err ),
     complete: () => console.info('Completado')
 };
+
+const interval$ = new Observable<number>( subscriber => {
+
+    const interval = setInterval( () => subscriber.next( Math.random() ), 3000);
+    return () => clearInterval( interval );
+
+});
+
+const sub1 = interval$.subscribe( res => console.log('Subs 1:', res) );
+const sub2 = interval$.subscribe( res => console.log('Subs 2:', res) );
