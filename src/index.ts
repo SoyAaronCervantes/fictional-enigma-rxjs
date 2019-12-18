@@ -1,48 +1,28 @@
-import { from, of } from 'rxjs';
+import {fromEvent, range} from 'rxjs';
+import {map, mapTo, pluck} from "rxjs/operators";
 
-/**
- * of: Toma argumentos y genera una secuencia
- * from: Genera un observable con base en un array, object, promise, iterable, observable, etc.
- */
+// range(1, 5)
+//     .pipe(
+//         map<number, string>( value => (value * 10).toString() )
+//     )
+//     .subscribe( console.log );
 
-const observer = {
-  next: val => console.log('next:', val),
-  complete: () => console.log('complete')
-};
+const keyUp$ = fromEvent<KeyboardEvent>( document, 'keyup' );
 
-// const source$ = from([1,2,3,4,5]);
-// const source$ = of([1,2,3,4,5]);
-// const source$ = of(...[1,2,3,4,5]);
+const keyUpCode$ = keyUp$.pipe(
+    map( event => event.code)
+);
 
-// const source$ = from('Aarón');
-// const source$ = of('Aarón');
+const keyUpPluck$ = keyUp$.pipe(
+    pluck("target", 'baseURI')
+);
 
-const miGenerador = function *() {
-    yield 1;
-    yield 2;
-    yield 3;
-    yield 4;
-    yield 5;
-};
+const keyUpMapTo$ = keyUp$.pipe(
+    mapTo('Tecla presionada')
+);
 
-const iterable = miGenerador();
 
-from( iterable ).subscribe( observer );
-
-/**
- * Utilizando from con fetch()
- */
-
-const source$ = from( fetch('https://api.github.com/users/soyaaroncervantes') );
-
-// source$.subscribe( async (res) => {
-//
-//     console.log( res );
-//
-//     const resData = await res.json();
-//
-//     console.log(resData);
-//
-// });
-
-// source$.subscribe( observer );
+keyUp$.subscribe( console.log );
+keyUpCode$.subscribe( res => console.log('%c map:', 'color: pink', res) );
+keyUpPluck$.subscribe( res => console.log('%c pluck:', 'color: lightblue', res) );
+keyUpMapTo$.subscribe( res => console.log('%c map To:', 'color: yellow', res) );
