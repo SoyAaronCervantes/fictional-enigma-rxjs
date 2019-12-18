@@ -10,26 +10,28 @@ const observer = {
   complete: () => console.log('complete')
 };
 
-const miGenerador = function *() {
-
-    yield 1;
-    yield 2;
-    yield 3;
-    yield 4;
-    yield 5;
-
-};
-
-const iterable = miGenerador();
-
-from( iterable ).subscribe( observer );
-
 // const source$ = from([1,2,3,4,5]);
 // const source$ = of([1,2,3,4,5]);
 // const source$ = of(...[1,2,3,4,5]);
 
 // const source$ = from('Aarón');
 // const source$ = of('Aarón');
+
+const miGenerador = function *() {
+    yield 1;
+    yield 2;
+    yield 3;
+    yield 4;
+    yield 5;
+};
+
+const iterable = miGenerador();
+
+from( iterable ).subscribe( observer );
+
+/**
+ * Utilizando from con fetch()
+ */
 
 const source$ = from( fetch('https://api.github.com/users/soyaaroncervantes') );
 
