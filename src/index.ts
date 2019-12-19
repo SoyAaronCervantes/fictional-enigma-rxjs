@@ -1,52 +1,15 @@
-import {from, fromEvent, range} from "rxjs";
-import {filter, map} from "rxjs/operators";
+import {range} from "rxjs";
+import {map, tap} from "rxjs/operators";
 
-// range(1,10)
-//     .pipe(
-//         filter( value => value % 2 === 1 )
-//     ).subscribe( console.log );
+const numeros$ = range(1,5);
 
-range(20,30)
+numeros$
     .pipe(
-        filter( (value, index) => {
-            console.log( 'index', index );
-            return value % 2 === 1
-        })
-    );
-// .subscribe( console.log );
-
-interface personaje {
-    tipo: string;
-    nombre: string;
-}
-
-const personajes: personaje[] = [
-    {
-        tipo: 'heroe',
-        nombre: 'Batman'
-    },
-    {
-        tipo: 'heroe',
-        nombre: 'Robin'
-    },
-    {
-        tipo: 'villano',
-        nombre: 'Joker'
-    }
-];
-
-const personajes$ = from<personaje[]>( personajes );
-
-personajes$
-    .pipe(
-        filter( value => value.tipo !== 'heroe' )
+        tap(  x => console.log('%c Antes del Map:', 'color: red', x ) ),
+        map( value => (value * 10) ),
+        tap({
+            next: value => console.log('%c Después del Map:', 'color: lightblue', value ),
+            complete: () =>  console.log('%c Completado', 'color: yellow' )
+        }),
     )
-    .subscribe( console.log );
-
-const keyup$ = fromEvent<KeyboardEvent>(document, 'keyup')
-    .pipe(
-        map( value => value.code ),
-        filter( value => value === 'Enter' )
-    );
-
-keyup$.subscribe( console.log );
+    .subscribe( value => console.log('%c Subscribe:', 'color: pink', value ) );
