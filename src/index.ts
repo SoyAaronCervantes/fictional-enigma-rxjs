@@ -1,21 +1,51 @@
-import {interval} from "rxjs";
-import {reduce, take, tap} from "rxjs/operators";
+import {from} from "rxjs";
+import {map, reduce, scan} from "rxjs/operators";
 
 const numbers = [1,2,3,4,5];
 
-const totalReducer = ( acumulador: number, valorActual: number ) => acumulador + valorActual;
+const totalAcumulador = ( acc, curr ) => acc + curr;
 
-const total = numbers.reduce( totalReducer, 0 );
-
-console.log( total );
-
-interval( 500 )
+// reduce
+from( numbers )
     .pipe(
-        take( 6 ),
-        tap( console.log ),
-        reduce( totalReducer )
+        reduce( totalAcumulador, 0 )
     )
-    .subscribe({
-        next: val => console.log('next:', val),
-        complete: () => console.log('complete')
-    });
+    .subscribe( console.log );
+
+console.log(' \n%c **************** \n', 'color: pink');
+
+// scan
+from( numbers )
+    .pipe(
+        scan( totalAcumulador, 0 )
+    )
+    .subscribe( console.log );
+
+// redux
+interface usuario {
+    id?: string;
+    auth?: boolean;
+    token?: string;
+    age?: number;
+}
+
+const user: Partial<usuario[]> = [
+    { id: 'fer', auth: false, token: null },
+    { id: 'fer', auth: true, token: 'abc' },
+    { id: 'fer', auth: true, token: 'abc123' },
+];
+
+const state$ = from( user )
+    .pipe(
+        scan<usuario>(
+            ( (acc, value) => {
+                return {...acc, ...value}
+            }), { age: 33 }
+        )
+    );
+
+const id$ = state$
+    .pipe(
+        map( value => value )
+    )
+    .subscribe( console.log );
