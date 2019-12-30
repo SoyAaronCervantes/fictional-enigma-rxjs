@@ -1,22 +1,15 @@
 import {fromEvent} from "rxjs";
-import {first, map, tap} from "rxjs/operators";
+import {map, takeWhile} from "rxjs/operators";
 
-const event$ = fromEvent<MouseEvent>(document, 'click');
+const click$ = fromEvent<MouseEvent>( document, 'click' );
 
-event$
+click$
     .pipe(
-        tap<MouseEvent>( value => console.log( '%c tap: ', 'color: pink', value ) ),
-        // first( value => value.clientY > 150 )
-
-        // map( value => ({
-        //     clientY: value.clientY,
-        //     clientX: value.clientX
-        // }) )
-
-        map( ({ clientY, clientX } ) => ({clientY, clientX})) ,
-        first( value => value.clientY > 150 )
+        map( ({ x, y }) => ({ x, y }) ),
+        // takeWhile( ( { y } ) => y <= 150 )
+        takeWhile( ( { y } ) => y <= 150, true )
     )
     .subscribe({
-        next: value => console.log('%c value: ', 'color: lightblue', value),
+        next: value => console.log('%c value: ', 'color: yellow', value),
         complete: () => console.log('completed')
     });
