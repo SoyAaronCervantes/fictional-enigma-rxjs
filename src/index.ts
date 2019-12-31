@@ -1,24 +1,30 @@
-import {fromEvent, interval} from "rxjs";
-import {skip, takeUntil, tap} from "rxjs/operators";
+import {from, of} from "rxjs";
+import {distinct} from "rxjs/operators";
 
-const button = document.createElement('button');
-button.innerHTML = 'Detener Timer';
+const numbers$ = of(1,1,1,3,3,2,2,4,5,3,1);
 
-document.querySelector('body').append( button );
-
-const counter$ = interval(1000);
-// const clickBtn$ = fromEvent<MouseEvent>( button , 'click');
-const clickBtn$ = fromEvent<MouseEvent>( button , 'click').pipe(
-    tap( () => console.log('Antes del skip method') ),
-    skip(1),
-    tap( () => console.log('Después del skip method') )
-);
-
-counter$
+numbers$
     .pipe(
-        takeUntil( clickBtn$ )
+        distinct()
     )
-    .subscribe({
-        next: value => console.log('%c Valor:', 'color: pink', value),
-        complete: () => console.log('%c Complete', 'color: lightcoral')
-    });
+    .subscribe( console.log );
+
+interface Personaje {
+    nombre: string;
+}
+
+const personajes: Personaje[] = [
+    { nombre: 'Megaman' },
+    { nombre: 'X' },
+    { nombre: 'Zero' },
+    { nombre: 'Dr. Willy' },
+    { nombre: 'X' },
+    { nombre: 'Megaman' },
+    { nombre: 'Zero' },
+];
+
+from( personajes )
+    .pipe(
+        distinct( value => value.nombre )
+    )
+    .subscribe( console.log );
