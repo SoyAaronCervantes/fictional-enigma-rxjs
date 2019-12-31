@@ -1,14 +1,32 @@
-import {fromEvent} from "rxjs";
-import {auditTime, map, tap} from "rxjs/operators";
+import {ajax, AjaxError} from "rxjs/ajax";
+import {catchError, map, pluck} from "rxjs/operators";
+import {of} from "rxjs";
 
-const click$ = fromEvent<MouseEvent>( document, 'click' );
+const url = 'https://api.github.com/users?per_page=5';
 
-click$
+const errorManage = ( resp: Response ) => {
+    if ( !resp.ok ) { throw new Error( resp.statusText ) }
+    return resp;
+};
+
+const errorManageAjax = ( error: AjaxError ) => {
+  console.warn( 'Error:', error );
+  return of([]);
+};
+
+const fetchPromise = fetch( url );
+
+// fetchPromise
+//     .then( errorManage )
+//     .then( value => value.json() )
+//     .then( value => console.log('Data: ', value ) )
+//     .catch( err => console.warn('Error: ', err ) );
+
+const ajax$ = ajax( url );
+
+ajax$
     .pipe(
-        map(({ x }) => ({ x })),
-        tap( value => console.log('%c Value [ tap ]', 'color: lightcoral', value ) ),
-        auditTime( 2000 )
+        pluck('response'),
+        catchError( errorManageAjax )
     )
-    .subscribe({
-        next: value => console.log( '%c value:', 'color: yellow', value )
-    });
+    .subscribe( console.log );
