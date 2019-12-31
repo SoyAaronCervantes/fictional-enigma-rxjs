@@ -1,11 +1,11 @@
-import {fromEvent} from "rxjs";
-import {map, pluck, sampleTime} from "rxjs/operators";
+import {fromEvent, interval} from "rxjs";
+import {sample} from "rxjs/operators";
 
-const click$ = fromEvent<MouseEvent>(document, 'click');
+const interval$ = interval(500);
+const click$ = fromEvent<MouseEvent>( document, 'click' );
 
-click$
+interval$
     .pipe(
-        sampleTime(2000),
-        map( ({ x, y })  => ({ x, y }) ),
+        sample( click$ )
     )
     .subscribe( console.log );
