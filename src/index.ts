@@ -1,11 +1,14 @@
-import {fromEvent, interval} from "rxjs";
-import {sample} from "rxjs/operators";
+import {fromEvent} from "rxjs";
+import {auditTime, map, tap} from "rxjs/operators";
 
-const interval$ = interval(500);
 const click$ = fromEvent<MouseEvent>( document, 'click' );
 
-interval$
+click$
     .pipe(
-        sample( click$ )
+        map(({ x }) => ({ x })),
+        tap( value => console.log('%c Value [ tap ]', 'color: lightcoral', value ) ),
+        auditTime( 2000 )
     )
-    .subscribe( console.log );
+    .subscribe({
+        next: value => console.log( '%c value:', 'color: yellow', value )
+    });
