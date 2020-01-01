@@ -1,36 +1,65 @@
+import {fromEvent, Observable} from "rxjs";
+import {debounceTime, map, mergeAll, pluck} from "rxjs/operators";
 import {ajax} from "rxjs/ajax";
+import {GithubUsers} from "./interfaces/github-users.interface";
+import {GithubUser} from "./interfaces/github-user.interface";
 
-const url = 'https://httpbin.org/delay/1';
+const body = document.querySelector('body');
+const textInput = document.createElement('input');
+const orderList = document.createElement('ol');
 
-ajax.post( url, {
-    id: 1,
-    name: 'Aarón'
-}, {
-    'mi-token': 'abc123'
-})
-    .subscribe( value => console.log('%c [POST] Value:', 'color: pink', value) );
+body.append( textInput, orderList );
 
-ajax.put( url, {
-    id: 1,
-    name: 'Aarón'
-}, {
-    'mi-token': 'abc123'
-})
-    .subscribe( value => console.log('%c [PUT] Value:', 'color: lightyellow', value) );
+// Helpers
 
-ajax.delete( url, { 'mi-token': 'abc123' } )
-    .subscribe( value => console.log('%c [DELETE] Value:', 'color: lightblue', value) );
+const showUser = ( users: GithubUser[] ) => {
 
+  console.log( users );
 
-ajax({
-   url,
-   method: 'delete',
-    headers: {
-       'mi-token': 'abc123'
-    },
-    body: {
-       id: 2,
-        name: 'Aarón'
+  orderList.innerHTML = '';
+
+    for (let user of users) {
+
+        const listItem = document.createElement('li');
+
+        const img = document.createElement('img');
+
+        const anchor = document.createElement('a');
+
+        img.src = user.avatar_url;
+
+        anchor.href = user.html_url;
+        anchor.text = 'Ir a la página';
+        anchor.target = '_blank';
+
+        listItem.append( img );
+
+        listItem.append( document.createElement('br') );
+
+        listItem.append( user.login + ' ' );
+
+        listItem.append( document.createElement('br') );
+
+        listItem.append( anchor );
+
+        listItem.append( document.createElement('br') );
+
+        orderList.append( listItem );
+
     }
-})
-    .subscribe(  value => console.log('%c [DYNAMIC REQUEST] Value:', 'color: lightgreen', value)  );
+
+};
+
+// Stream
+
+const input$ = fromEvent<KeyboardEvent>( textInput, 'keyup' );
+
+input$
+    .pipe(
+        debounceTime(1000),
+        pluck<KeyboardEvent, string>('target', 'value'),
+        map<string, Observable<GithubUsers>>( value => ajax.getJSON(`https://api.github.com/search/users?q=${ value }`) ),
+        mergeAll(),
+        pluck('items'),
+    )
+    .subscribe( showUser );
