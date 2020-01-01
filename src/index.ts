@@ -1,5 +1,14 @@
 import {fromEvent, Observable} from "rxjs";
-import {debounceTime, map, mergeAll, pluck} from "rxjs/operators";
+import {
+    debounceTime, distinctUntilChanged,
+    distinctUntilKeyChanged,
+    map,
+    mergeAll,
+    mergeMap,
+    pluck,
+    switchMap,
+    switchMapTo
+} from "rxjs/operators";
 import {ajax} from "rxjs/ajax";
 import {GithubUser} from "./interfaces/github-user.interface";
 import {GithubUsers} from "./interfaces/github-users.interface";
@@ -58,8 +67,17 @@ input$
     .pipe(
         debounceTime(1000),
         pluck<KeyboardEvent, string>('target', 'value'),
-        map<string, Observable<GithubUsers>>( value => ajax.getJSON(`https://api.github.com/search/users?q=${ value }`) ),
-        mergeAll(),
+        mergeMap<string, Observable<GithubUsers>>( value => ajax.getJSON(`https://api.github.com/search/users?q=${ value }`) ),
         pluck('items'),
+    );
+    // .subscribe( showUser );
+
+const url = `https://httpbin.org/delay/1?arg=`;
+
+input$
+    .pipe(
+        pluck<KeyboardEvent, string>('target', 'value'),
+        distinctUntilChanged(),
+        switchMap( value => ajax.getJSON( url + value ) )
     )
-    .subscribe( showUser );
+    .subscribe( console.log );
