@@ -1,20 +1,11 @@
 import {fromEvent, interval} from "rxjs";
-import {mergeMap, switchMap} from "rxjs/operators";
+import {concatMap, switchMap, take} from "rxjs/operators";
 
+const interval$ = interval(500).pipe( take(3) );
 const click$ = fromEvent<MouseEvent>( document, 'click' );
-const interval$ = interval( 1000 );
-
-/**
- * switchMap : Mantiene solamente una subscripción activa
- */
-
-/**
- * mergeMap : Mantiene todas las subscripciones activas
- */
 
 click$
     .pipe(
-        // mergeMap( () => interval$ ),
-        switchMap( () => interval$ ),
+        concatMap( () => interval$ )
     )
     .subscribe( console.log );
