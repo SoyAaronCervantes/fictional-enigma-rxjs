@@ -1,83 +1,20 @@
-import {fromEvent, Observable} from "rxjs";
-import {
-    debounceTime, distinctUntilChanged,
-    distinctUntilKeyChanged,
-    map,
-    mergeAll,
-    mergeMap,
-    pluck,
-    switchMap,
-    switchMapTo
-} from "rxjs/operators";
-import {ajax} from "rxjs/ajax";
-import {GithubUser} from "./interfaces/github-user.interface";
-import {GithubUsers} from "./interfaces/github-users.interface";
+import {fromEvent, interval} from "rxjs";
+import {mergeMap, switchMap} from "rxjs/operators";
 
-const body = document.querySelector('body');
-const textInput = document.createElement('input');
-const orderList = document.createElement('ol');
+const click$ = fromEvent<MouseEvent>( document, 'click' );
+const interval$ = interval( 1000 );
 
-body.append( textInput, orderList );
+/**
+ * switchMap : Mantiene solamente una subscripción activa
+ */
 
-// Helpers
+/**
+ * mergeMap : Mantiene todas las subscripciones activas
+ */
 
-const showUser = ( users: GithubUser[] ) => {
-
-    console.log( users );
-
-    orderList.innerHTML = '';
-
-    for (let user of users) {
-
-        const listItem = document.createElement('li');
-
-        const img = document.createElement('img');
-
-        const anchor = document.createElement('a');
-
-        img.src = user.avatar_url;
-
-        anchor.href = user.html_url;
-        anchor.text = 'Ir a la página';
-        anchor.target = '_blank';
-
-        listItem.append( img );
-
-        listItem.append( document.createElement('br') );
-
-        listItem.append( user.login + ' ' );
-
-        listItem.append( document.createElement('br') );
-
-        listItem.append( anchor );
-
-        listItem.append( document.createElement('br') );
-
-        orderList.append( listItem );
-
-    }
-
-};
-
-// Stream
-
-const input$ = fromEvent<KeyboardEvent>( textInput, 'keyup' );
-
-input$
+click$
     .pipe(
-        debounceTime(1000),
-        pluck<KeyboardEvent, string>('target', 'value'),
-        mergeMap<string, Observable<GithubUsers>>( value => ajax.getJSON(`https://api.github.com/search/users?q=${ value }`) ),
-        pluck('items'),
-    );
-    // .subscribe( showUser );
-
-const url = `https://httpbin.org/delay/1?arg=`;
-
-input$
-    .pipe(
-        pluck<KeyboardEvent, string>('target', 'value'),
-        distinctUntilChanged(),
-        switchMap( value => ajax.getJSON( url + value ) )
+        // mergeMap( () => interval$ ),
+        switchMap( () => interval$ ),
     )
     .subscribe( console.log );
